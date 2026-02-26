@@ -107,14 +107,20 @@ class PSIRTOrchestrator:
         cve_score = risk_assessment.get('max_cve_score', 0.0)
         severity = risk_assessment.get('severity', 'UNKNOWN')
         
-        # Determine action based on CVE score
-        if cve_score >= 9.0:
+        # Determine action based on severity (includes both CVE and code vulnerabilities)
+        if severity == 'CRITICAL':
             status = 'BLOCK'
             action = 'PR must be blocked - Critical vulnerability detected'
-        elif cve_score >= 7.0:
+        elif severity == 'HIGH':
             status = 'BLOCK'
             action = 'PR must be blocked - High severity vulnerability detected'
-        elif cve_score >= 4.0:
+        elif cve_score >= 9.0:
+            status = 'BLOCK'
+            action = 'PR must be blocked - Critical CVE score detected'
+        elif cve_score >= 7.0:
+            status = 'BLOCK'
+            action = 'PR must be blocked - High CVE score detected'
+        elif severity == 'MEDIUM' or cve_score >= 4.0:
             status = 'WARN'
             action = 'Security team review required before merge'
         else:
