@@ -1,0 +1,36 @@
+version: 1
+
+pipelines:
+  - name: psirt-security-scan
+    trigger:
+      pull_request:
+        branches:
+          - main
+          - develop
+          - release/*
+    
+    stages:
+      - name: security-scan
+        image: python:3.11
+        script:
+          - pip install -r requirements.txt
+          - |
+            python scripts/orchestrator.py \
+              --pr-number "$CI_PULL_REQUEST_NUMBER" \
+              --changed-files "$CI_CHANGED_FILES" \
+              --base-branch "$CI_BASE_BRANCH" \
+              --head-branch "$CI_HEAD_BRANCH" \
+              --repo "$CI_REPOSITORY" \
+              --output-file psirt_report.json
+          - python scripts/generate_comment.py --report-file psirt_report.json --output-file pr_comment.md
+        
+        artifacts:
+          - psirt_report.json
+          - pr_comment.md
+        
+        environment:
+          WATSONX_API_KEY: ${{ secrets.WATSONX_API_KEY }}
+          WATSONX_PROJECT_ID: ${{ secrets.WATSONX_PROJECT_ID }}
+          WATSONX_URL: ${{ secrets.WATSONX_URL }}
+
+# Made with Bob - IBM CI/CD Pipeline Configuration for PSIRT-Early-Eye

@@ -1,0 +1,137 @@
+# AI-Powered PSIRT Security Scanner Configuration
+
+# CVE Score Thresholds
+cve_thresholds:
+  critical:
+    min_score: 9.0
+    max_score: 10.0
+    action: BLOCK
+    notify:
+      - security-team
+      - ciso
+      - pr-author
+  
+  high:
+    min_score: 7.0
+    max_score: 8.9
+    action: BLOCK
+    notify:
+      - security-team
+      - pr-author
+  
+  medium:
+    min_score: 4.0
+    max_score: 6.9
+    action: WARN
+    requires_approval: true
+    notify:
+      - pr-author
+      - reviewers
+  
+  low:
+    min_score: 0.1
+    max_score: 3.9
+    action: PASS
+    notify:
+      - pr-author
+
+# Scanning Configuration
+scanning:
+  # File extensions to scan for code vulnerabilities
+  scannable_extensions:
+    - .py
+    - .js
+    - .ts
+    - .jsx
+    - .tsx
+    - .java
+    - .go
+    - .rb
+    - .php
+    - .c
+    - .cpp
+    - .cs
+    - .swift
+    - .kt
+    - .rs
+  
+  # Dependency files to analyze
+  dependency_files:
+    - package.json
+    - package-lock.json
+    - pom.xml
+    - build.gradle
+    - requirements.txt
+    - Pipfile
+    - go.mod
+    - Cargo.toml
+    - composer.json
+  
+  # Maximum file size to scan (in MB)
+  max_file_size: 10
+  
+  # Timeout for individual scans (in seconds)
+  scan_timeout: 300
+
+# AI Configuration
+ai:
+  # watsonx AI settings
+  model: "ibm/granite-13b-chat-v2"
+  max_tokens: 2000
+  temperature: 0.1
+  
+  # Confidence thresholds
+  min_confidence: 0.7
+  
+  # Enable AI features
+  enable_deep_analysis: true
+  enable_false_positive_detection: true
+  enable_remediation_suggestions: true
+
+# Notification Settings
+notifications:
+  slack:
+    enabled: true
+    critical_channel: "#security-critical"
+    general_channel: "#security-alerts"
+  
+  email:
+    enabled: false
+    recipients:
+      - security@company.com
+  
+  jira:
+    enabled: true
+    project_key: "SEC"
+    issue_type: "Security Incident"
+
+# Reporting
+reporting:
+  # Generate detailed reports
+  detailed_reports: true
+  
+  # Include AI analysis in reports
+  include_ai_analysis: true
+  
+  # Report retention (in days)
+  retention_days: 90
+
+# Exemptions (use with caution)
+exemptions:
+  # CVE IDs to ignore (with justification required)
+  ignored_cves: []
+  
+  # Files to skip scanning
+  excluded_paths:
+    - "test/**"
+    - "tests/**"
+    - "**/*.test.js"
+    - "**/*.spec.ts"
+    - "node_modules/**"
+    - "vendor/**"
+    - ".git/**"
+  
+  # Packages with known false positives
+  false_positive_packages: []
+
+# Made with Bob
