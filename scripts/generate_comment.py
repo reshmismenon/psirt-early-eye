@@ -156,7 +156,15 @@ No significant security vulnerabilities detected. You may proceed with the merge
 <details>
 <summary>📊 View Detailed Report</summary>
 
-Download the full scan report from the workflow artifacts for detailed analysis.
+**Download Full Report:**
+1. Go to [Actions](../../actions) tab
+2. Click on this workflow run
+3. Scroll to **Artifacts** section
+4. Download **psirt-security-report.zip**
+
+The report includes:
+- `psirt_report.json` - Complete scan results with all details
+- `pr_comment.md` - This formatted report
 
 </details>
 

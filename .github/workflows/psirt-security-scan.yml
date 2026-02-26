@@ -40,7 +40,6 @@ jobs:
       
       - name: Run PSIRT-Early-Eye Security Scan
         id: security-scan
-        continue-on-error: true
         env:
           # Optional: Add these secrets for real AI analysis, otherwise runs in demo mode
           WATSONX_API_KEY: ${{ secrets.WATSONX_API_KEY || '' }}
