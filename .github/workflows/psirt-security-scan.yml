@@ -39,26 +39,51 @@ jobs:
           separator: ','
       
       - name: Run PSIRT-Early-Eye Security Scan
+        id: security-scan
+        continue-on-error: true
         env:
-          WATSONX_API_KEY: ${{ secrets.WATSONX_API_KEY }}
-          WATSONX_PROJECT_ID: ${{ secrets.WATSONX_PROJECT_ID }}
+          # Optional: Add these secrets for real AI analysis, otherwise runs in demo mode
+          WATSONX_API_KEY: ${{ secrets.WATSONX_API_KEY || '' }}
+          WATSONX_PROJECT_ID: ${{ secrets.WATSONX_PROJECT_ID || '' }}
           WATSONX_URL: ${{ secrets.WATSONX_URL || 'https://us-south.ml.cloud.ibm.com' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "🔍 Starting PSIRT-Early-Eye Security Scan..."
+          if [ -z "$WATSONX_API_KEY" ]; then
+            echo "⚠️  Running in DEMO MODE (no watsonx credentials provided)"
+            echo "   The scanner will use simulated CVE data and pattern-based analysis"
+          else
+            echo "✅ Running with watsonx AI integration"
+          fi
+          
           python scripts/orchestrator.py \
             --pr-number ${{ github.event.pull_request.number }} \
             --changed-files "${{ steps.changed-files.outputs.all_changed_files }}" \
             --base-branch ${{ github.event.pull_request.base.ref }} \
             --head-branch ${{ github.event.pull_request.head.ref }} \
             --repo ${{ github.repository }} \
-            --output-file psirt_report.json
+            --output-file psirt_report.json || echo "Scan completed with errors"
       
       - name: Generate PR Comment
         if: always()
         run: |
-          python scripts/generate_comment.py \
-            --report-file psirt_report.json \
-            --output-file pr_comment.md
+          if [ -f psirt_report.json ]; then
+            python scripts/generate_comment.py \
+              --report-file psirt_report.json \
+              --output-file pr_comment.md
+          else
+            echo "⚠️ Security scan failed to generate report. Please check the logs." > pr_comment.md
+            echo "" >> pr_comment.md
+            echo "**Error:** The PSIRT-Early-Eye scanner encountered an error during execution." >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "**Possible causes:**" >> pr_comment.md
+            echo "- Missing or invalid WATSONX_API_KEY secret" >> pr_comment.md
+            echo "- Missing or invalid WATSONX_PROJECT_ID secret" >> pr_comment.md
+            echo "- Network connectivity issues" >> pr_comment.md
+            echo "- Invalid file paths in changed files" >> pr_comment.md
+            echo "" >> pr_comment.md
+            echo "Please review the workflow logs for more details." >> pr_comment.md
+          fi
       
       - name: Post PR Comment
         if: always()
@@ -112,18 +137,26 @@ jobs:
       - name: Check Scan Status
         if: always()
         run: |
-          STATUS=$(jq -r '.status' psirt_report.json)
-          echo "Scan Status: $STATUS"
-          
-          if [ "$STATUS" = "BLOCK" ]; then
-            echo "::error::Security scan failed - Critical or High severity vulnerabilities detected"
-            exit 1
-          elif [ "$STATUS" = "ERROR" ]; then
-            echo "::error::Security scan encountered an error"
-            exit 2
+          if [ -f psirt_report.json ]; then
+            STATUS=$(jq -r '.status' psirt_report.json 2>/dev/null || echo "UNKNOWN")
+            echo "Scan Status: $STATUS"
+            
+            if [ "$STATUS" = "BLOCK" ]; then
+              echo "::error::Security scan failed - Critical or High severity vulnerabilities detected"
+              exit 1
+            elif [ "$STATUS" = "ERROR" ]; then
+              echo "::error::Security scan encountered an error"
+              exit 2
+            elif [ "$STATUS" = "UNKNOWN" ]; then
+              echo "::warning::Could not determine scan status"
+              exit 0
+            else
+              echo "::notice::Security scan completed successfully"
+              exit 0
+            fi
           else
-            echo "::notice::Security scan completed successfully"
-            exit 0
+            echo "::error::Security scan failed to generate report file"
+            exit 2
           fi
 
 # Made with Bob

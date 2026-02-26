@@ -63,8 +63,8 @@ This PSIRT (Product Security Incident Response Team) scanner integrates into you
 ### Prerequisites
 
 - GitHub repository with Actions enabled
-- IBM watsonx AI account (for production use)
 - Python 3.11+
+- **Optional:** IBM watsonx AI account (for enhanced AI analysis)
 
 ### Installation
 
@@ -75,15 +75,25 @@ This PSIRT (Product Security Incident Response Team) scanner integrates into you
 git clone https://github.com/your-org/psirt-early-eye.git
 ```
 
-2. **Set up GitHub Secrets:**
+2. **The scanner works immediately in DEMO MODE!**
+
+No configuration needed! The scanner will:
+- ✅ Scan code for vulnerabilities using pattern matching
+- ✅ Check dependencies against simulated CVE database
+- ✅ Generate security reports and PR comments
+- ✅ Block PRs with critical/high severity issues
+
+3. **Optional: Enable watsonx AI for Enhanced Analysis**
+
+For production use with real AI-powered analysis, add GitHub Secrets:
 
 Go to your repository Settings → Secrets and variables → Actions, and add:
 
-- `WATSONX_API_KEY`: Your IBM watsonx API key
-- `WATSONX_PROJECT_ID`: Your watsonx project ID
+- `WATSONX_API_KEY`: Your IBM watsonx API key ([How to get](https://cloud.ibm.com/iam/apikeys))
+- `WATSONX_PROJECT_ID`: Your watsonx project ID ([How to get](https://dataplatform.cloud.ibm.com/))
 - `SLACK_SECURITY_WEBHOOK`: (Optional) Slack webhook for notifications
 
-3. **Enable the workflow:**
+4. **Enable the workflow:**
 
 The workflow will automatically trigger on pull requests to `main`, `develop`, or `release/*` branches.
 

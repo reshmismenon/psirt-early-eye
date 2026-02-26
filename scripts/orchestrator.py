@@ -211,10 +211,10 @@ def main():
         'github_token': os.getenv('GITHUB_TOKEN')
     }
     
-    # Validate configuration
+    # Validate configuration (watsonx is optional - will use demo mode if not set)
     if not config['watsonx_api_key']:
-        print("❌ Error: WATSONX_API_KEY environment variable not set")
-        sys.exit(1)
+        print("⚠️  Warning: WATSONX_API_KEY not set - running in DEMO MODE with simulated AI analysis")
+        print("   To use real AI analysis, set WATSONX_API_KEY and WATSONX_PROJECT_ID environment variables\n")
     
     # Create orchestrator and run scan
     orchestrator = PSIRTOrchestrator(config)
