@@ -68,10 +68,11 @@ This PSIRT (Product Security Incident Response Team) scanner integrates into you
 
 ### Installation
 
-1. **Copy the pipeline to your repository:**
+1. **Add the scanner to your repository:**
 
 ```bash
-cp -r psirt-early-eye /path/to/your/repo/
+# Clone or copy this repository into your project
+git clone https://github.com/your-org/psirt-early-eye.git
 ```
 
 2. **Set up GitHub Secrets:**
@@ -175,14 +176,14 @@ Test the scanner locally before pushing:
 
 ```bash
 # Install dependencies
-pip install -r psirt-early-eye/requirements.txt
+pip install -r requirements.txt
 
 # Set environment variables
 export WATSONX_API_KEY="your-api-key"
 export WATSONX_PROJECT_ID="your-project-id"
 
 # Run the scanner
-python psirt-early-eye/scripts/orchestrator.py \
+python scripts/orchestrator.py \
   --pr-number 123 \
   --changed-files "src/app.js,package.json" \
   --base-branch main \
