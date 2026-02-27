@@ -1,13 +1,13 @@
 import sqlite3
 
 def get_user(user_id):
-    # SQL Injection vulnerability - will trigger CRITICAL alert
-    query = "SELECT * FROM users WHERE id = " + user_id
+    # Fixed: Using parameterized query to prevent SQL injection
+    query = "SELECT * FROM users WHERE id = ?"
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (user_id,))
     return cursor.fetchall()
 
-# Hardcoded secret - will trigger HIGH alert
-API_KEY = "sk-1234567890abcdefghijklmnop"
-DATABASE_PASSWORD = "MySecretPassword123"
+# Fixed: Using environment variables instead of hardcoded secrets
+API_KEY = os.getenv('API_KEY', '')
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD',
